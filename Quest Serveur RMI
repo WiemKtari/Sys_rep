@@ -1,0 +1,58 @@
+#Interface du service RMI
+
+import java.rmi.*;
+
+public interface EchoInterface extends Remote {
+    String echo(String message) throws RemoteException;
+}
+
+#serveur RMI
+
+import java.rmi.*;
+import java.rmi.server.*;
+
+public class EchoServer extends UnicastRemoteObject implements EchoInterface {
+    public EchoServer() throws RemoteException {
+        super();
+    }
+
+    public String echo(String message) throws RemoteException {
+        System.out.println("Message reçu : " + message);
+        return message;
+    }
+
+    public static void main(String[] args) {
+        try {
+            // Création du serveur RMI
+            EchoServer server = new EchoServer();
+
+            // Enregistrement du serveur dans le registre RMI
+            Naming.rebind("EchoServer", server);
+
+            System.out.println("Serveur RMI prêt...");
+        } catch (Exception e) {
+            System.err.println("Erreur : " + e);
+        }
+    }
+}
+
+#client RMI
+
+import java.rmi.*;
+
+public class EchoClient {
+    public static void main(String[] args) {
+        try {
+            // Recherche du serveur RMI dans le registre RMI
+            EchoInterface server = (EchoInterface) Naming.lookup("rmi://localhost/EchoServer");
+
+            // Appel de la méthode distante sur le serveur RMI
+            String message = "Hello, world!";
+            String response = server.echo(message);
+
+            System.out.println("Réponse du serveur : " + response);
+        } catch (Exception e) {
+            System.err.println("Erreur : " + e);
+        }
+    }
+}
